@@ -1,0 +1,8 @@
+error: this attribute takes no arguments
+
+  = help: use `#[contracts]`
+
+ --> $DIR/has-expr-argument.rs:1:24
+  |
+1 | #[contracts::contracts(true)]
+  |                        ^^^^
