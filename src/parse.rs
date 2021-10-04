@@ -43,8 +43,8 @@ mod tests {
         parse(
             quote!(),
             quote!(
-                #[precondition(x % 2 == 0)]
                 #[inline]
+                #[precondition(x % 2 == 0)]
                 fn even_to_odd(x: u32) -> u32 {
                     x + 1
                 }

@@ -82,8 +82,7 @@ impl Model {
 
 #[cfg(test)]
 mod tests {
-    use quote::quote;
-    use syn::parse_quote;
+    use syn::{parse_quote, Attribute};
 
     use super::*;
 
@@ -91,28 +90,25 @@ mod tests {
     fn can_extract_precondition() {
         let model = analyze(parse_quote!(
             #[precondition(x)]
-            fn f() {}
+            fn f(x: bool) {}
         ));
 
-        assert_eq!(1, model.preconditions.len());
-        let expr = &model.preconditions[0];
-        assert_eq!("x", quote!(#expr).to_string());
+        let expected: &[Expr] = &[parse_quote!(x)];
+        assert_eq!(expected, model.preconditions);
+
+        assert!(model.item.attrs.is_empty());
     }
 
     #[test]
-    fn non_dsl_attributes_are_kept() {
+    fn non_dsl_attributes_are_preserved() {
         let model = analyze(parse_quote!(
             #[a]
             #[precondition(x)]
             #[b]
-            fn f() {}
+            fn f(x: bool) {}
         ));
 
-        assert_eq!(2, model.item.attrs.len());
-        let first = &model.item.attrs[0].path;
-        assert_eq!("a", quote!(#first).to_string());
-
-        let second = &model.item.attrs[1].path;
-        assert_eq!("b", quote!(#second).to_string());
+        let expected: &[Attribute] = &[parse_quote!(#[a]), parse_quote!(#[b])];
+        assert_eq!(expected, model.item.attrs);
     }
 }

@@ -46,8 +46,8 @@ mod tests {
         assert_eq!(1, ir.assertions.len());
 
         let assertion = &ir.assertions[0];
-        let expr = &assertion.expr;
-        assert_eq!("x", quote!(#expr).to_string());
+        let expected: Expr = parse_quote!(x);
+        assert_eq!(expected, assertion.expr);
         assert_eq!("violation of precondition `x`", assertion.message);
     }
 }
