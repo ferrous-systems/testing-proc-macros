@@ -32,3 +32,24 @@ impl ToTokens for Assertion {
         stmt.to_tokens(tokens);
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn output_is_function_item() {
+        let ir = Ir {
+            assertions: vec![Assertion {
+                expr: parse_quote!(x),
+                message: "message".to_string(),
+            }],
+            item: parse_quote!(
+                fn f() {}
+            ),
+        };
+        let rust = codegen(ir);
+
+        assert!(syn::parse2::<ItemFn>(rust).is_ok());
+    }
+}
