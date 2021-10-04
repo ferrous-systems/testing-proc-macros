@@ -36,6 +36,17 @@ mod tests {
 
     use super::*;
 
+    impl Model {
+        fn stub() -> Self {
+            Self {
+                preconditions: vec![],
+                item: parse_quote!(
+                    fn f() {}
+                ),
+            }
+        }
+    }
+
     #[test]
     fn produces_assertion_for_precondition() {
         let mut model = Model::stub();

@@ -66,20 +66,6 @@ pub struct Model {
     pub item: ItemFn,
 }
 
-impl Model {
-    #[cfg(test)]
-    pub fn stub() -> Self {
-        use syn::parse_quote;
-
-        Self {
-            preconditions: vec![],
-            item: parse_quote!(
-                fn f() {}
-            ),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use syn::{parse_quote, Attribute};
