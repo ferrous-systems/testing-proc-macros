@@ -20,7 +20,7 @@ pub fn codegen(ir: Ir) -> Rust {
         #(#attrs)*
         #vis #sig {
             #(#assertions)*
-            #block;
+            #block
         }
     )
 }
