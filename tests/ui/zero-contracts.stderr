@@ -2,9 +2,9 @@ error: no contracts were specified
 
   = help: add a `#[precondition]`
 
- --> $DIR/zero-contracts.rs:1:1
+ --> $DIR/zero-contracts.rs:3:1
   |
-1 | #[contracts::contracts]
-  | ^^^^^^^^^^^^^^^^^^^^^^^
+3 | #[contracts]
+  | ^^^^^^^^^^^^
   |
-  = note: this error originates in the attribute macro `contracts::contracts` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the attribute macro `contracts` (in Nightly builds, run with -Z macro-backtrace for more info)

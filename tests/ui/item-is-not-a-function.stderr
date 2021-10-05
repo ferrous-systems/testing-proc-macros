@@ -2,7 +2,7 @@ error: item is not a function
 
   = help: `#[contracts]` can only be used on functions
 
- --> $DIR/item-is-not-a-function.rs:2:1
+ --> $DIR/item-is-not-a-function.rs:4:1
   |
-2 | struct S;
+4 | struct S;
   | ^^^^^^^^^

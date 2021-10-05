@@ -1,4 +1,6 @@
-#[contracts::contracts(true)]
+use contracts::contracts;
+
+#[contracts(true)]
 fn f() {}
 
 fn main() {}

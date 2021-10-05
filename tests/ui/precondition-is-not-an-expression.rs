@@ -1,4 +1,6 @@
-#[contracts::contracts]
+use contracts::contracts;
+
+#[contracts]
 #[precondition(struct)]
 fn f() {}
 

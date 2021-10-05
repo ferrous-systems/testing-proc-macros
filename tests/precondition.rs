@@ -1,4 +1,6 @@
-#[contracts::contracts]
+use contracts::contracts;
+
+#[contracts]
 #[precondition(input)]
 fn f(input: bool) -> i32 {
     0
