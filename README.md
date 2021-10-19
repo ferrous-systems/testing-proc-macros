@@ -1,7 +1,9 @@
 # `testing-proc-macros`
 
 Example of structuring a proc macro crate for testability.
-See accompanying blog post for details. (TODO add link)
+See [accompanying blog post][post] for details.
+
+[post]: https://ferrous-systems.com/blog/testing-proc-macros/
 
 ## License
 
