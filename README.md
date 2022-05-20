@@ -5,6 +5,10 @@ See [accompanying blog post][post] for details.
 
 [post]: https://ferrous-systems.com/blog/testing-proc-macros/
 
+Note that the blog post was written against a specific version of the compiler and crate dependencies.
+This sample code is configured to use those specific versions: see `rust-toolchain.toml` and `Cargo.lock`.
+Things may have changed since then; please do *not* submit pull requests to update dependencies or change `rust-toolchain.toml`.
+
 ## License
 
 Licensed under either of

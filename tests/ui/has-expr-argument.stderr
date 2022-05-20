@@ -1,6 +1,6 @@
 error: this attribute takes no arguments
 
-         = help: use `#[contracts]`
+  = help: use `#[contracts]`
 
  --> $DIR/has-expr-argument.rs:3:13
   |
