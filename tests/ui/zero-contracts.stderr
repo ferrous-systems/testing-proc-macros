@@ -1,6 +1,6 @@
 error: no contracts were specified
 
-  = help: add a `#[precondition]`
+         = help: add a `#[precondition]`
 
  --> $DIR/zero-contracts.rs:3:1
   |

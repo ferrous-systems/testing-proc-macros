@@ -1,6 +1,6 @@
 error: item is not a function
 
-  = help: `#[contracts]` can only be used on functions
+         = help: `#[contracts]` can only be used on functions
 
  --> $DIR/item-is-not-a-function.rs:4:1
   |
