@@ -1,17 +1,15 @@
 [package]
-edition = "2018"
+edition = "2021"
 name = "contracts"
 publish = false
-version = "0.0.0"
 
 [lib]
 proc-macro = true
 
 [dependencies]
-proc-macro-error = "1"
 proc-macro2 = "1"
 quote = "1"
-syn = { version = "1", features = ["extra-traits", "full"] }
+syn = { version = "2", features = ["extra-traits", "full"] }
 
 [dev-dependencies]
 trybuild = "1"

@@ -1,32 +1,29 @@
-use proc_macro_error::{abort, abort_call_site};
-use syn::{
-    parenthesized,
-    parse::{Parse, ParseStream},
-    spanned::Spanned,
-    Expr, ItemFn,
-};
+use syn::{spanned::Spanned, Expr, ItemFn, Meta};
 
-use crate::Ast;
+use crate::{error, Ast};
 
-pub fn analyze(ast: Ast) -> Model {
+pub fn analyze(ast: Ast) -> syn::Result<Model> {
     let mut preconditions = vec![];
 
     let mut item = ast;
     let attrs = &mut item.attrs;
     for index in (0..attrs.len()).rev() {
-        if let Some(ident) = attrs[index].path.get_ident() {
+        if let Some(ident) = attrs[index].path().get_ident() {
             if ident.to_string().as_str() == "precondition" {
                 let attr = attrs.remove(index);
-                let span = attr.tokens.span();
+                if let Meta::List(attr) = attr.meta {
+                    let span = attr.tokens.span();
 
-                if let Ok(arg) = syn::parse2::<AttributeArgument>(attr.tokens) {
-                    preconditions.push(arg.expr);
-                } else {
-                    // ../tests/ui/precondition-is-not-an-expression.rs
-                    abort!(
-                        span,
-                        "expected an expression as argument";
-                        help = "example syntax: `#[precondition(argument % 2 == 0)]`")
+                    if let Ok(arg) = syn::parse2::<Expr>(attr.tokens) {
+                        preconditions.push(arg);
+                    } else {
+                        // ../tests/ui/precondition-is-not-an-expression.rs
+                        return error::abort(
+                            span,
+                            "expected an expression as argument",
+                            "example syntax: `#[precondition(argument % 2 == 0)]`",
+                        );
+                    }
                 }
             }
         }
@@ -34,29 +31,11 @@ pub fn analyze(ast: Ast) -> Model {
 
     if preconditions.is_empty() {
         // ../tests/ui/zero-contracts.rs
-        abort_call_site!(
-            "no contracts were specified";
-            help = "add a `#[precondition]`"
-        )
-    }
-
-    Model {
-        preconditions,
-        item,
-    }
-}
-
-struct AttributeArgument {
-    expr: Expr,
-}
-
-impl Parse for AttributeArgument {
-    fn parse(input: ParseStream) -> syn::Result<Self> {
-        let content;
-        let _parenthesis = parenthesized!(content in input);
-
-        Ok(AttributeArgument {
-            expr: content.parse()?,
+        error::abort_call_side("no contracts were specified", "add a `#[precondition]`")
+    } else {
+        Ok(Model {
+            preconditions,
+            item,
         })
     }
 }
@@ -77,7 +56,8 @@ mod tests {
         let model = analyze(parse_quote!(
             #[precondition(x)]
             fn f(x: bool) {}
-        ));
+        ))
+        .unwrap();
 
         let expected: &[Expr] = &[parse_quote!(x)];
         assert_eq!(expected, model.preconditions);
@@ -92,7 +72,8 @@ mod tests {
             #[precondition(x)]
             #[b]
             fn f(x: bool) {}
-        ));
+        ))
+        .unwrap();
 
         let expected: &[Attribute] = &[parse_quote!(#[a]), parse_quote!(#[b])];
         assert_eq!(expected, model.item.attrs);
