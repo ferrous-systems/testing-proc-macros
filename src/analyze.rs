@@ -1,4 +1,4 @@
-use proc_macro_error::{abort, abort_call_site};
+use proc_macro2::Span;
 use syn::{
     parenthesized,
     parse::{Parse, ParseStream},
@@ -6,9 +6,9 @@ use syn::{
     Expr, ItemFn,
 };
 
-use crate::Ast;
+use crate::{error, Ast};
 
-pub fn analyze(ast: Ast) -> Model {
+pub fn analyze(ast: Ast) -> syn::Result<Model> {
     let mut preconditions = vec![];
 
     let mut item = ast;
@@ -23,10 +23,13 @@ pub fn analyze(ast: Ast) -> Model {
                     preconditions.push(arg.expr);
                 } else {
                     // ../tests/ui/precondition-is-not-an-expression.rs
-                    abort!(
+                    return Err(syn::Error::new(
                         span,
-                        "expected an expression as argument";
-                        help = "example syntax: `#[precondition(argument % 2 == 0)]`")
+                        error::message(
+                            "expected an expression as argument",
+                            "example syntax: `#[precondition(argument % 2 == 0)]`",
+                        ),
+                    ));
                 }
             }
         }
@@ -34,15 +37,15 @@ pub fn analyze(ast: Ast) -> Model {
 
     if preconditions.is_empty() {
         // ../tests/ui/zero-contracts.rs
-        abort_call_site!(
-            "no contracts were specified";
-            help = "add a `#[precondition]`"
-        )
-    }
-
-    Model {
-        preconditions,
-        item,
+        Err(syn::Error::new(
+            Span::call_site(),
+            error::message("no contracts were specified", "add a `#[precondition]`"),
+        ))
+    } else {
+        Ok(Model {
+            preconditions,
+            item,
+        })
     }
 }
 
@@ -77,7 +80,8 @@ mod tests {
         let model = analyze(parse_quote!(
             #[precondition(x)]
             fn f(x: bool) {}
-        ));
+        ))
+        .unwrap();
 
         let expected: &[Expr] = &[parse_quote!(x)];
         assert_eq!(expected, model.preconditions);
@@ -92,7 +96,8 @@ mod tests {
             #[precondition(x)]
             #[b]
             fn f(x: bool) {}
-        ));
+        ))
+        .unwrap();
 
         let expected: &[Attribute] = &[parse_quote!(#[a]), parse_quote!(#[b])];
         assert_eq!(expected, model.item.attrs);

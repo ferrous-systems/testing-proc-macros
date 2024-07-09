@@ -22,7 +22,7 @@ pub fn contracts(args: TokenStream, item: TokenStream) -> TokenStream {
 
 fn main(args: TokenStream, item: TokenStream) -> syn::Result<proc_macro2::TokenStream> {
     let ast = parse(args.into(), item.into())?;
-    let model = analyze(ast);
+    let model = analyze(ast)?;
     let ir = lower(model);
     let rust = codegen(ir);
     Ok(rust)
