@@ -1,4 +1,3 @@
-use proc_macro2::Span;
 use syn::{spanned::Spanned, Expr, ItemFn, Meta};
 
 use crate::{error, Ast};
@@ -19,13 +18,11 @@ pub fn analyze(ast: Ast) -> syn::Result<Model> {
                         preconditions.push(arg);
                     } else {
                         // ../tests/ui/precondition-is-not-an-expression.rs
-                        return Err(syn::Error::new(
+                        return error::abort(
                             span,
-                            error::message(
-                                "expected an expression as argument",
-                                "example syntax: `#[precondition(argument % 2 == 0)]`",
-                            ),
-                        ));
+                            "expected an expression as argument",
+                            "example syntax: `#[precondition(argument % 2 == 0)]`",
+                        );
                     }
                 }
             }
@@ -34,10 +31,7 @@ pub fn analyze(ast: Ast) -> syn::Result<Model> {
 
     if preconditions.is_empty() {
         // ../tests/ui/zero-contracts.rs
-        Err(syn::Error::new(
-            Span::call_site(),
-            error::message("no contracts were specified", "add a `#[precondition]`"),
-        ))
+        error::abort_call_side("no contracts were specified", "add a `#[precondition]`")
     } else {
         Ok(Model {
             preconditions,

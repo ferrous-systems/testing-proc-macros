@@ -6,31 +6,29 @@ use crate::error;
 pub type Ast = ItemFn;
 
 pub fn parse(args: TokenStream, item: TokenStream) -> syn::Result<Ast> {
-    const ERROR: &str = "this attribute takes no arguments";
-    const HELP: &str = "use `#[contracts]`";
-
     if !args.is_empty() {
-        let span = if let Ok(expr) = syn::parse2::<Expr>(args) {
+        let span = match syn::parse2::<Expr>(args) {
             // ../tests/ui/has-expr-argument.rs
-            expr.span()
-        } else {
+            Ok(expr) => expr.span(),
             // ../tests/ui/has-arguments.rs
-            Span::call_site()
+            Err(_) => Span::call_site(),
         };
-        return Err(syn::Error::new(span, error::message(ERROR, HELP)));
+        return error::abort(
+            span,
+            "this attribute takes no arguments",
+            "use `#[contracts]`",
+        );
     }
 
     match syn::parse2::<Item>(item) {
         Ok(Item::Fn(item)) => Ok(item),
         Ok(item) => {
             // ../tests/ui/item-is-not-a-function.rs
-            Err(syn::Error::new_spanned(
+            error::abort_spanned(
                 item,
-                error::message(
-                    "item is not a function",
-                    "`#[contracts]` can only be used on functions",
-                ),
-            ))
+                "item is not a function",
+                "`#[contracts]` can only be used on functions",
+            )
         }
         Err(_) => unreachable!(), // ?
     }
