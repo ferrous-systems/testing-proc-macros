@@ -2,7 +2,7 @@ error: expected an expression as argument
 
          = help: example syntax: `#[precondition(argument % 2 == 0)]`
 
- --> $DIR/precondition-is-not-an-expression.rs:4:15
+ --> $DIR/precondition-is-not-an-expression.rs:4:16
   |
 4 | #[precondition(struct)]
-  |               ^^^^^^^^
+  |                ^^^^^^

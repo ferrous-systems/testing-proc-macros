@@ -1,10 +1,5 @@
 use proc_macro2::Span;
-use syn::{
-    parenthesized,
-    parse::{Parse, ParseStream},
-    spanned::Spanned,
-    Expr, ItemFn,
-};
+use syn::{spanned::Spanned, Expr, ItemFn, Meta};
 
 use crate::{error, Ast};
 
@@ -14,22 +9,24 @@ pub fn analyze(ast: Ast) -> syn::Result<Model> {
     let mut item = ast;
     let attrs = &mut item.attrs;
     for index in (0..attrs.len()).rev() {
-        if let Some(ident) = attrs[index].path.get_ident() {
+        if let Some(ident) = attrs[index].path().get_ident() {
             if ident.to_string().as_str() == "precondition" {
                 let attr = attrs.remove(index);
-                let span = attr.tokens.span();
+                if let Meta::List(attr) = attr.meta {
+                    let span = attr.tokens.span();
 
-                if let Ok(arg) = syn::parse2::<AttributeArgument>(attr.tokens) {
-                    preconditions.push(arg.expr);
-                } else {
-                    // ../tests/ui/precondition-is-not-an-expression.rs
-                    return Err(syn::Error::new(
-                        span,
-                        error::message(
-                            "expected an expression as argument",
-                            "example syntax: `#[precondition(argument % 2 == 0)]`",
-                        ),
-                    ));
+                    if let Ok(arg) = syn::parse2::<Expr>(attr.tokens) {
+                        preconditions.push(arg);
+                    } else {
+                        // ../tests/ui/precondition-is-not-an-expression.rs
+                        return Err(syn::Error::new(
+                            span,
+                            error::message(
+                                "expected an expression as argument",
+                                "example syntax: `#[precondition(argument % 2 == 0)]`",
+                            ),
+                        ));
+                    }
                 }
             }
         }
@@ -45,21 +42,6 @@ pub fn analyze(ast: Ast) -> syn::Result<Model> {
         Ok(Model {
             preconditions,
             item,
-        })
-    }
-}
-
-struct AttributeArgument {
-    expr: Expr,
-}
-
-impl Parse for AttributeArgument {
-    fn parse(input: ParseStream) -> syn::Result<Self> {
-        let content;
-        let _parenthesis = parenthesized!(content in input);
-
-        Ok(AttributeArgument {
-            expr: content.parse()?,
         })
     }
 }
